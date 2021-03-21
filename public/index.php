@@ -32,8 +32,8 @@ $samplingResult = $sampler->shouldSample(
     API\SpanKind::KIND_INTERNAL
 );
 
-$jaegarExporter = new JaegerExporter(
-    'Hello World Web Server Jaegar',
+$jaegerExporter = new JaegerExporter(
+    'Hello World Web Server Jaeger',
     'http://localhost:9412/api/v2/spans'
 );
 
@@ -44,8 +44,8 @@ $zipkinExporter = new ZipkinExporter(
 
 if (SamplingResult::RECORD_AND_SAMPLED === $samplingResult->getDecision()) {
 
-    $jaegarTracer = (new TracerProvider())
-        ->addSpanProcessor(new BatchSpanProcessor($jaegarExporter, Clock::get()))
+    $jaegerTracer = (new TracerProvider())
+        ->addSpanProcessor(new BatchSpanProcessor($jaegerExporter, Clock::get()))
         ->getTracer('io.opentelemetry.contrib.php');
 
     $zipkinTracer = (new TracerProvider())
@@ -53,7 +53,7 @@ if (SamplingResult::RECORD_AND_SAMPLED === $samplingResult->getDecision()) {
     ->getTracer('io.opentelemetry.contrib.php');
 
     $request = Request::createFromGlobals();
-    $jaegarSpan = $jaegarTracer->startAndActivateSpan($request->getUri());
+    $jaegerSpan = $jaegerTracer->startAndActivateSpan($request->getUri());
     $zipkinSpan = $zipkinTracer->startAndActivateSpan($request->getUri());
 
 }
@@ -66,5 +66,5 @@ $kernel->terminate($request, $response);
 
 if (SamplingResult::RECORD_AND_SAMPLED === $samplingResult->getDecision()) {
     $zipkinTracer->endActiveSpan();
-    $jaegarTracer->endActiveSpan();
+    $jaegerTracer->endActiveSpan();
 }
